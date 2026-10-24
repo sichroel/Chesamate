@@ -1,0 +1,384 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#123f35">
+<title>Ceshamate — Closing Kasir</title>
+<style>
+:root{--green:#16483b;--green2:#216653;--mint:#e7f4ed;--ink:#172b25;--muted:#718078;--line:#e5ece7;--paper:#f5f8f5;--white:#fff;--orange:#fff3df;--red:#fff0ef;--shadow:0 8px 28px rgba(24,57,43,.07);--radius:20px}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--paper);color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-size:14px;-webkit-tap-highlight-color:transparent}
+button,input,select,textarea{font:inherit}button{cursor:pointer}button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid #83c9a6;outline-offset:2px}
+.app{max-width:1120px;margin:auto;padding:0 16px 100px}.topbar{background:var(--green);color:#fff;padding:19px 16px 18px;border-radius:0 0 26px 26px;margin:0 -16px 20px;box-shadow:0 8px 25px rgba(20,72,59,.15)}
+.top-inner{max-width:1088px;margin:auto;padding:0 4px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.brand{display:flex;gap:11px;align-items:center}.logo{width:43px;height:43px;border-radius:15px;background:#d7f2df;color:var(--green);display:grid;place-items:center;font-size:23px;font-weight:900}.brand h1{font-size:20px;letter-spacing:-.6px;margin:0;font-weight:850}.brand p{margin:3px 0 0;color:#c7e1d3;font-size:12px}.top-actions{display:flex;gap:8px}.iconbtn{border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.1);color:white;border-radius:12px;width:40px;height:40px;font-size:17px}
+.datebar{max-width:1088px;margin:16px auto 0;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}.datebar label{font-size:12px;color:#c7e1d3;font-weight:700;display:block;margin-bottom:5px}.datebar input{background:#fff;color:var(--ink);border:0;border-radius:11px;padding:10px 12px;min-height:40px}.datehint{font-size:12px;color:#c7e1d3}
+.tabs{display:flex;gap:6px;background:#e9efeb;border-radius:15px;padding:5px;margin-bottom:17px;overflow:auto}.tab{border:0;background:transparent;color:#64756c;font-weight:750;padding:11px 14px;border-radius:11px;white-space:nowrap;flex:1}.tab.active{background:#fff;color:var(--green);box-shadow:0 2px 8px #163d2b12}
+.page{display:none}.page.active{display:block}.grid{display:grid;gap:14px}.stats{grid-template-columns:repeat(4,minmax(0,1fr));margin-bottom:16px}.card{background:var(--white);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:17px}.stat{min-width:0;position:relative;overflow:hidden}.stat .eyebrow{font-size:11px;color:var(--muted);font-weight:750;letter-spacing:.4px;text-transform:uppercase}.stat .value{font-size:clamp(17px,2vw,24px);font-weight:850;letter-spacing:-.6px;margin-top:9px;overflow-wrap:anywhere}.stat .icon{position:absolute;right:13px;top:12px;font-size:20px;opacity:.65}.stat.green{background:var(--green);color:white;border-color:var(--green)}.stat.green .eyebrow{color:#c7e1d3}.stat.green .icon{opacity:.9}.section-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:13px}.section-head h2{font-size:17px;margin:0;letter-spacing:-.3px}.section-head p{font-size:12px;color:var(--muted);margin:4px 0 0}.btn{border:0;border-radius:12px;padding:11px 14px;font-weight:800;display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:42px}.btn.primary{background:var(--green);color:#fff}.btn.primary:hover{background:var(--green2)}.btn.soft{background:var(--mint);color:var(--green)}.btn.ghost{background:#f1f5f2;color:#3f554a}.btn.danger{background:var(--red);color:#b42318}.btn.small{padding:8px 10px;min-height:34px;font-size:12px;border-radius:10px}.btn.full{width:100%}.toolbar{display:flex;gap:8px;flex-wrap:wrap}.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.field{display:flex;flex-direction:column;gap:6px;min-width:0}.field.full{grid-column:1/-1}.field label{font-size:12px;font-weight:800;color:#46584f}.field input,.field select,.field textarea{width:100%;border:1px solid #dce6df;background:#fbfdfb;border-radius:12px;padding:12px;color:var(--ink);min-height:44px}.field textarea{min-height:75px;resize:vertical}.field input[readonly]{background:#edf5ef;color:var(--green);font-weight:800}.money{font-variant-numeric:tabular-nums}.hint{font-size:11px;color:var(--muted);line-height:1.45}.calcbox{background:#f0f7f2;border:1px solid #d8eadf;border-radius:15px;padding:13px;display:grid;grid-template-columns:1fr 1fr;gap:12px}.calcbox .label{font-size:11px;color:#5f7669;font-weight:750}.calcbox .num{font-size:17px;font-weight:850;color:var(--green);margin-top:5px;overflow-wrap:anywhere}.callout{padding:12px 13px;border-radius:13px;background:var(--orange);color:#7b5115;font-size:12px;line-height:1.5}.list-tools{display:flex;gap:8px;margin-bottom:12px}.list-tools input,.list-tools select{border:1px solid var(--line);background:#fff;border-radius:12px;padding:11px;min-width:0}.list-tools input{flex:1}.tx-list{display:grid;gap:10px}.tx{border:1px solid var(--line);border-radius:16px;padding:14px;background:#fff}.tx-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}.tx-name{font-size:14px;font-weight:850}.tx-sub{font-size:11px;color:var(--muted);margin-top:4px}.tx-total{font-weight:850;font-size:15px;text-align:right;white-space:nowrap}.tx-mini{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px;padding-top:11px;border-top:1px solid #eef2ee}.tx-mini span{display:block;color:var(--muted);font-size:10px;margin-bottom:4px}.tx-mini b{font-size:12px;overflow-wrap:anywhere}.badge{display:inline-flex;align-items:center;border-radius:999px;padding:5px 8px;font-size:10px;font-weight:850}.badge.paid{background:#e4f5e9;color:#1e7043}.badge.unpaid{background:#fff1d8;color:#8c5b0a}.tx-actions{display:flex;gap:7px;margin-top:12px}.empty{padding:35px 15px;text-align:center;color:var(--muted)}.empty .emoji{font-size:32px;margin-bottom:9px}.empty strong{display:block;color:var(--ink);margin-bottom:5px}
+.recap-list{display:grid;gap:9px}.recap-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;border:1px solid var(--line);border-radius:14px;padding:13px;background:#fff}.recap-title{font-weight:850}.recap-sub{font-size:11px;color:var(--muted);margin-top:4px;line-height:1.45}.recap-amount{text-align:right;font-weight:850;font-size:15px;white-space:nowrap}.recap-split{font-size:10px;color:var(--muted);font-weight:600;margin-top:4px}
+.closing-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.big-number{font-size:27px;letter-spacing:-.8px;font-weight:900;margin-top:7px;overflow-wrap:anywhere}.summaryline{display:flex;justify-content:space-between;gap:12px;padding:11px 0;border-bottom:1px solid var(--line)}.summaryline:last-child{border-bottom:0}.summaryline span{color:var(--muted);font-size:12px}.summaryline b{text-align:right;font-variant-numeric:tabular-nums}.variance{border-radius:16px;padding:16px;background:var(--mint);margin-top:14px}.variance.bad{background:var(--red)}.variance .vlabel{font-size:12px;font-weight:750}.variance .vnum{font-size:26px;font-weight:900;margin-top:6px}.variance .vdesc{font-size:11px;margin-top:5px;opacity:.8}.footnote{font-size:11px;color:var(--muted);line-height:1.55;margin-top:12px}.hidden{display:none!important}.bottom-note{text-align:center;color:#91a097;font-size:11px;margin-top:22px}.modal-backdrop{position:fixed;inset:0;background:#0d241db8;display:none;align-items:flex-end;justify-content:center;z-index:20;padding:0}.modal-backdrop.show{display:flex}.modal{background:#fff;width:min(100%,620px);max-height:92dvh;overflow:auto;border-radius:24px 24px 0 0;padding:20px 17px calc(20px + env(safe-area-inset-bottom));box-shadow:0 -15px 50px #0002}.modal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}.modal-head h2{margin:0;font-size:19px}.close{border:0;background:#f0f4f1;border-radius:10px;width:36px;height:36px;font-size:20px}.toast{position:fixed;left:50%;bottom:20px;transform:translate(-50%,20px);opacity:0;pointer-events:none;background:#153d32;color:#fff;padding:12px 17px;border-radius:12px;box-shadow:var(--shadow);font-weight:750;font-size:12px;transition:.2s;z-index:50;max-width:90vw;text-align:center}.toast.show{opacity:1;transform:translate(-50%,0)}
+#exportArea{background:#fff;color:#172b25;padding:24px;font-family:Arial,sans-serif;width:900px;position:fixed;left:-10000px;top:0}.export-title{font-size:25px;font-weight:800}.export-meta{font-size:13px;color:#66776d;margin:7px 0 20px}.export-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px}.export-stat{border:1px solid #dfe8e1;border-radius:10px;padding:12px}.export-stat span{font-size:11px;color:#66776d;display:block}.export-stat b{font-size:17px;display:block;margin-top:6px}.export-table{width:100%;border-collapse:collapse;font-size:11px}.export-table th{background:#16483b;color:#fff;text-align:left;padding:9px}.export-table td{border-bottom:1px solid #e3eae5;padding:8px;vertical-align:top}.export-foot{margin-top:17px;padding:13px;background:#edf6ef;border-radius:10px;font-size:12px;line-height:1.8}
+@media(min-width:760px){.app{padding:0 22px 60px}.topbar{margin-left:-22px;margin-right:-22px;padding-left:22px;padding-right:22px}.stats{grid-template-columns:repeat(4,1fr)}.main-layout{display:grid;grid-template-columns:1.1fr .9fr;gap:14px;align-items:start}.modal-backdrop{align-items:center;padding:20px}.modal{border-radius:24px;padding:22px;max-height:90vh}.tabs{max-width:520px}}
+@media(max-width:560px){.app{padding-left:12px;padding-right:12px}.topbar{margin-left:-12px;margin-right:-12px;border-radius:0 0 23px 23px}.brand h1{font-size:18px}.brand p{font-size:11px}.stats{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.card{padding:14px;border-radius:17px}.stat .value{font-size:20px}.section-head h2{font-size:16px}.form-grid{grid-template-columns:1fr}.field.full{grid-column:auto}.closing-grid{grid-template-columns:1fr}.tx-mini{grid-template-columns:repeat(3,minmax(0,1fr))}.tx-mini b{font-size:11px}.toolbar .btn{flex:1}.datebar{align-items:flex-start}.datebar>div:first-child{flex:1}.datehint{width:100%}.tabs{margin-left:-2px;margin-right:-2px}.tab{padding:11px 10px;font-size:12px}.calcbox{grid-template-columns:1fr 1fr}.big-number{font-size:24px}}
+@media print{body{background:#fff}.app,.topbar,.modal-backdrop,.toast{display:none!important}#printReport{display:block!important;padding:0!important}#printReport *{color:#000!important;box-shadow:none!important}#printReport .card{border:1px solid #ddd!important;margin-bottom:12px;break-inside:avoid}#printReport table{width:100%;border-collapse:collapse;font-size:10px}#printReport th,#printReport td{border:1px solid #bbb;padding:6px;text-align:left}#printReport th{background:#eee!important} @page{size:A4 portrait;margin:12mm}}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="topbar">
+    <div class="top-inner">
+      <div class="brand"><div class="logo">C</div><div><h1>Ceshamate</h1><p>Teman closing kasir Toko Cesha</p></div></div>
+      <div class="top-actions">
+        <button class="iconbtn" id="backupBtn" aria-label="Backup data" title="Backup data">⇧</button>
+        <button class="iconbtn" id="helpBtn" aria-label="Petunjuk" title="Petunjuk">?</button>
+      </div>
+    </div>
+    <div class="datebar">
+      <div><label for="reportDate">TANGGAL LAPORAN</label><input id="reportDate" type="date"></div>
+      <div class="datehint">Data tersimpan otomatis di browser ini</div>
+    </div>
+  </header>
+
+  <nav class="tabs" aria-label="Menu utama">
+    <button class="tab active" data-page="dashboard">Ringkasan</button>
+    <button class="tab" data-page="transactions">Transaksi</button>
+    <button class="tab" data-page="recap">Rekap luar cash</button>
+    <button class="tab" data-page="closing">Closing</button>
+  </nav>
+
+  <section class="page active" id="page-dashboard">
+    <div class="grid stats">
+      <div class="card stat green"><span class="icon">▤</span><div class="eyebrow">Total real</div><div class="value" id="sReal">Rp0</div></div>
+      <div class="card stat"><span class="icon">▣</span><div class="eyebrow">Cash seharusnya</div><div class="value" id="sCash">Rp0</div></div>
+      <div class="card stat"><span class="icon">↗</span><div class="eyebrow">Transfer</div><div class="value" id="sTransfer">Rp0</div></div>
+      <div class="card stat"><span class="icon">◷</span><div class="eyebrow">Belum bayar</div><div class="value" id="sBB">Rp0</div></div>
+    </div>
+    <div class="main-layout">
+      <div class="card">
+        <div class="section-head"><div><h2>Aktivitas hari ini</h2><p id="dashDateText">Ringkasan transaksi</p></div><button class="btn primary" id="addFromDash">＋ Transaksi</button></div>
+        <div class="summaryline"><span>Jumlah transaksi</span><b id="sCount">0 transaksi</b></div>
+        <div class="summaryline"><span>Total voucher/return</span><b id="sVoucher">Rp0</b></div>
+        <div class="summaryline"><span>Total uang di luar cash</span><b id="sOutside">Rp0</b></div>
+        <div class="summaryline"><span>Total pembayaran tercatat</span><b id="sPaid">Rp0</b></div>
+        <div class="footnote">Total uang di luar cash = transfer + belum bayar. Cash seharusnya = total real − transfer − belum bayar.</div>
+      </div>
+      <div class="card">
+        <div class="section-head"><div><h2>Transaksi terbaru</h2><p>Transaksi pada tanggal terpilih</p></div><button class="btn soft small" id="goTransactions">Lihat semua</button></div>
+        <div id="recentList" class="tx-list"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="page" id="page-transactions">
+    <div class="card">
+      <div class="section-head"><div><h2>Daftar transaksi</h2><p>Setiap transaksi dicatat terpisah, meskipun nama warung sama.</p></div><button class="btn primary" id="addTx">＋ Tambah</button></div>
+      <div class="list-tools"><input id="searchTx" type="search" placeholder="Cari warung / pengirim…"><select id="filterTx" aria-label="Filter status"><option value="all">Semua</option><option value="unpaid">Ada BB</option><option value="paid">Lunas</option></select></div>
+      <div id="txList" class="tx-list"></div>
+    </div>
+  </section>
+
+  <section class="page" id="page-recap">
+    <div class="card">
+      <div class="section-head"><div><h2>Rekap uang di luar cash</h2><p>Per transaksi — transfer + sisa belum bayar.</p></div><button class="btn soft small" id="exportRecap">⇩ Ekspor</button></div>
+      <div class="grid stats" style="grid-template-columns:repeat(2,minmax(0,1fr));margin-bottom:14px">
+        <div class="card stat" style="box-shadow:none"><div class="eyebrow">Total transfer</div><div class="value" id="rTransfer">Rp0</div></div>
+        <div class="card stat" style="box-shadow:none"><div class="eyebrow">Total BB</div><div class="value" id="rBB">Rp0</div></div>
+      </div>
+      <div class="summaryline"><span>Total uang di luar cash</span><b id="rOutside">Rp0</b></div>
+      <div id="recapList" class="recap-list" style="margin-top:12px"></div>
+      <div class="footnote">Transaksi yang seluruhnya cash tetap tercatat di daftar transaksi, tetapi tidak perlu muncul di rekap ini karena tidak ada uang di luar cash.</div>
+    </div>
+  </section>
+
+  <section class="page" id="page-closing">
+    <div class="closing-grid">
+      <div class="card">
+        <div class="section-head"><div><h2>Hitungan closing</h2><p>Hitung uang cash yang seharusnya ada di laci.</p></div></div>
+        <div class="summaryline"><span>Total real</span><b id="cReal">Rp0</b></div>
+        <div class="summaryline"><span>Kurangi: transfer</span><b id="cTransfer">− Rp0</b></div>
+        <div class="summaryline"><span>Kurangi: belum bayar (BB)</span><b id="cBB">− Rp0</b></div>
+        <div class="summaryline"><span>Uang di luar cash</span><b id="cOutside">Rp0</b></div>
+        <div class="variance"><div class="vlabel">CASH SEHARUSNYA DI LACI</div><div class="vnum" id="cExpected">Rp0</div><div class="vdesc">Total real − transfer − BB</div></div>
+      </div>
+      <div class="card">
+        <div class="section-head"><div><h2>Cocokkan uang fisik</h2><p>Masukkan uang yang benar-benar dihitung di laci.</p></div></div>
+        <div class="field"><label for="physicalCash">UANG FISIK DI LACI (Rp)</label><input id="physicalCash" class="money" type="number" min="0" step="1" inputmode="numeric" placeholder="Contoh: 1250000"></div>
+        <div class="variance" id="varianceBox"><div class="vlabel">SELISIH KAS</div><div class="vnum" id="cVariance">—</div><div class="vdesc" id="varianceDesc">Isi uang fisik untuk melihat selisih.</div></div>
+        <div class="footnote">Selisih = uang fisik yang dihitung − cash seharusnya. Nilai negatif berarti kurang; positif berarti lebih.</div>
+        <button class="btn primary full" style="margin-top:14px" id="exportReport">⇩ Ekspor laporan closing</button>
+      </div>
+    </div>
+    <div class="card" style="margin-top:14px">
+      <div class="section-head"><div><h2>Pemeriksaan konsistensi</h2><p>Pastikan angka pembayaran tidak melebihi total real.</p></div></div>
+      <div id="validationBox" class="callout">Belum ada transaksi.</div>
+      <div class="footnote">BB dihitung otomatis: total real − cash − transfer. Jangan masukkan BB sebagai pembayaran; BB adalah sisa tagihan yang belum diterima. Jika pembayaran berikutnya masuk, edit transaksi terkait dan perbarui cash/transfer.</div>
+    </div>
+  </section>
+  <div class="bottom-note">Ceshamate · Catatan closing kasir pribadi · Data lokal di perangkat</div>
+</div>
+
+<div class="modal-backdrop" id="txModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+  <div class="modal">
+    <div class="modal-head"><h2 id="modalTitle">Tambah transaksi</h2><button class="close" id="closeModal" aria-label="Tutup">×</button></div>
+    <form id="txForm">
+      <input type="hidden" id="txId">
+      <div class="form-grid">
+        <div class="field"><label for="sender">Nama pengirim</label><input id="sender" maxlength="100" placeholder="Nama driver/pengirim"></div>
+        <div class="field"><label for="company">Nama perusahaan / warung *</label><input id="company" maxlength="120" required placeholder="Contoh: Warung A"></div>
+        <div class="field"><label for="gross">Total belanja (Rp) *</label><input id="gross" type="number" min="0" step="1" inputmode="numeric" required placeholder="0"></div>
+        <div class="field"><label for="voucher">VCR / return (Rp)</label><input id="voucher" type="number" min="0" step="1" inputmode="numeric" value="0" placeholder="0"></div>
+        <div class="field full"><div class="calcbox"><div><div class="label">TOTAL REAL</div><div class="num" id="previewReal">Rp0</div></div><div><div class="label">SISA BELUM BAYAR (BB)</div><div class="num" id="previewBB">Rp0</div></div></div></div>
+        <div class="field"><label for="cash">Uang cash (Rp)</label><input id="cash" type="number" min="0" step="1" inputmode="numeric" value="0" placeholder="0"></div>
+        <div class="field"><label for="transfer">Uang transfer (Rp)</label><input id="transfer" type="number" min="0" step="1" inputmode="numeric" value="0" placeholder="0"></div>
+        <div class="field full"><label for="note">Keterangan (opsional)</label><textarea id="note" maxlength="500" placeholder="Contoh: pembayaran sebagian / catatan return"></textarea></div>
+        <div class="field full"><div class="hint">Total real dihitung dari total belanja dikurangi VCR/return. BB dihitung otomatis dari total real dikurangi cash dan transfer.</div><div id="formError" class="callout hidden"></div></div>
+      </div>
+      <div class="toolbar" style="margin-top:17px"><button type="button" class="btn ghost" id="cancelTx" style="flex:1">Batal</button><button type="submit" class="btn primary" style="flex:2">Simpan transaksi</button></div>
+    </form>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="helpModal" role="dialog" aria-modal="true" aria-labelledby="helpTitle">
+ <div class="modal"><div class="modal-head"><h2 id="helpTitle">Cara pakai Ceshamate</h2><button class="close" id="closeHelp">×</button></div>
+ <div style="line-height:1.7">
+ <p><b>1. Tambah transaksi.</b> Masukkan total belanja, VCR/return, cash dan transfer. Total real serta BB dihitung otomatis.</p>
+ <p><b>2. Rekap luar cash.</b> Setiap transaksi ditampilkan sendiri. Nilai rekap = transfer + BB.</p>
+ <p><b>3. Closing.</b> Cash seharusnya = total real − total transfer − total BB. Masukkan uang fisik untuk melihat selisih.</p>
+ <p><b>4. Backup.</b> Gunakan tombol ⇧ di bagian atas untuk mengunduh file backup JSON. Simpan file tersebut di tempat aman. Jika ganti HP, buka web lalu pulihkan backup.</p>
+ <p><b>Catatan penyimpanan.</b> Data tersimpan di browser/perangkat yang digunakan, bukan di server. Membuka web di HP lain tidak otomatis membawa data dari HP ini.</p>
+ <p><b>Ekspor.</b> Tombol ekspor closing membuka halaman cetak yang bisa disimpan sebagai PDF. Ekspor gambar tersedia dari menu rekap.</p>
+ </div><button class="btn primary full" id="closeHelpBottom">Mengerti</button></div>
+</div>
+<div id="printReport" class="hidden"></div>
+<div id="exportArea" aria-hidden="true"></div>
+<input type="file" id="importFile" accept=".json,application/json" class="hidden">
+<div class="toast" id="toast"></div>
+
+<script>
+(() => {
+'use strict';
+const $ = id => document.getElementById(id);
+const STORAGE_KEY = 'ceshamate_transactions_v1';
+const PHYSICAL_KEY = 'ceshamate_physical_v1';
+const DATE_KEY = 'ceshamate_date_v1';
+let transactions = [];
+let editingId = null;
+let toastTimer;
+
+const today = () => {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+};
+const currentDate = () => $('reportDate').value || today();
+const money = n => new Intl.NumberFormat('id-ID',{style:'currency',currency:'IDR',maximumFractionDigits:0}).format(Number(n)||0);
+const num = id => Math.max(0, Math.round(Number($(id).value)||0));
+const escapeHtml = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const realOf = t => Math.max(0, Number(t.gross||0)-Number(t.voucher||0));
+const bbOf = t => Math.max(0, realOf(t)-Number(t.cash||0)-Number(t.transfer||0));
+const paidOf = t => Number(t.cash||0)+Number(t.transfer||0);
+const outsideOf = t => Number(t.transfer||0)+bbOf(t);
+const dateTransactions = () => transactions.filter(t => t.date === currentDate()).sort((a,b) => (a.createdAt||0)-(b.createdAt||0));
+const totals = list => list.reduce((a,t) => {
+  a.gross += Number(t.gross||0); a.voucher += Number(t.voucher||0); a.real += realOf(t);
+  a.cash += Number(t.cash||0); a.transfer += Number(t.transfer||0); a.bb += bbOf(t); a.paid += paidOf(t);
+  a.outside += outsideOf(t); a.count++; return a;
+},{gross:0,voucher:0,real:0,cash:0,transfer:0,bb:0,paid:0,outside:0,count:0});
+function load(){
+  try { const x=JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]'); transactions=Array.isArray(x)?x.filter(t=>t&&t.id&&t.date):[]; }
+  catch(e){transactions=[];}
+  $('reportDate').value=localStorage.getItem(DATE_KEY)||today();
+  $('physicalCash').value=localStorage.getItem(PHYSICAL_KEY+'_'+currentDate())||'';
+}
+function save(){
+  try { localStorage.setItem(STORAGE_KEY,JSON.stringify(transactions)); localStorage.setItem(DATE_KEY,currentDate()); localStorage.setItem(PHYSICAL_KEY+'_'+currentDate(),$('physicalCash').value||''); }
+  catch(e){notify('Penyimpanan penuh. Ekspor backup lalu hapus data lama jika perlu.');}
+}
+function notify(message){
+  const el=$('toast'); el.textContent=message; el.classList.add('show'); clearTimeout(toastTimer); toastTimer=setTimeout(()=>el.classList.remove('show'),2600);
+}
+function switchPage(name){
+  document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.page===name));
+  document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active',p.id==='page-'+name));
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function txCard(t, compact=false){
+  const real=realOf(t), bb=bbOf(t), paid=paidOf(t), status=bb===0?'Lunas':'Ada BB';
+  return `<article class="tx">
+    <div class="tx-top"><div style="min-width:0"><div class="tx-name">${escapeHtml(t.company||'Tanpa nama')}</div><div class="tx-sub">${escapeHtml(t.sender||'Pengirim belum diisi')} · Transaksi #${escapeHtml(t.id.slice(-5))}</div></div><div><div class="tx-total">${money(real)}</div><div style="text-align:right;margin-top:6px"><span class="badge ${bb===0?'paid':'unpaid'}">${status}</span></div></div></div>
+    <div class="tx-mini"><div><span>Cash</span><b>${money(t.cash)}</b></div><div><span>Transfer</span><b>${money(t.transfer)}</b></div><div><span>BB</span><b>${money(bb)}</b></div></div>
+    ${t.note?`<div class="tx-sub" style="margin-top:9px">Catatan: ${escapeHtml(t.note)}</div>`:''}
+    ${compact?'':`<div class="tx-actions"><button class="btn soft small" data-edit="${escapeHtml(t.id)}">✎ Edit</button><button class="btn ghost small" data-delete="${escapeHtml(t.id)}">Hapus</button><span class="hint" style="align-self:center;margin-left:auto">Dibayar: ${money(paid)}</span></div>`}
+  </article>`;
+}
+function renderTransactions(){
+  const list=dateTransactions();
+  const q=$('searchTx').value.trim().toLowerCase(), filter=$('filterTx').value;
+  const shown=list.filter(t=>{
+    const matches=!q || [t.company,t.sender,t.note].some(v=>String(v||'').toLowerCase().includes(q));
+    const bb=bbOf(t);
+    return matches && (filter==='all'||(filter==='unpaid'&&bb>0)||(filter==='paid'&&bb===0));
+  });
+  $('txList').innerHTML=shown.length?shown.map(t=>txCard(t)).join(''):`<div class="empty"><div class="emoji">🧾</div><strong>Belum ada transaksi</strong>Tekan “Tambah” untuk mulai mencatat penjualan hari ini.</div>`;
+  const recent=list.slice(-3).reverse();
+  $('recentList').innerHTML=recent.length?recent.map(t=>txCard(t,true)).join(''):`<div class="empty"><div class="emoji">🌿</div><strong>Hari masih kosong</strong>Transaksi yang lu input akan muncul di sini.</div>`;
+}
+function renderRecap(){
+  const list=dateTransactions().filter(t=>outsideOf(t)>0);
+  const s=totals(dateTransactions());
+  $('rTransfer').textContent=money(s.transfer); $('rBB').textContent=money(s.bb); $('rOutside').textContent=money(s.outside);
+  $('recapList').innerHTML=list.length?list.map((t,i)=>`<div class="recap-row"><div><div class="recap-title">${escapeHtml(t.company)} <span class="hint">· #${i+1}</span></div><div class="recap-sub">${escapeHtml(t.sender||'Pengirim tidak diisi')}<br>Transfer ${money(t.transfer)} + BB ${money(bbOf(t))}</div></div><div class="recap-amount">${money(outsideOf(t))}<div class="recap-split">di luar cash</div></div></div>`).join(''):`<div class="empty"><div class="emoji">👌</div><strong>Tidak ada uang di luar cash</strong>Semua transaksi hari ini dibayar cash penuh.</div>`;
+}
+function renderClosing(){
+  const list=dateTransactions(), s=totals(list), expected=s.real-s.transfer-s.bb;
+  $('cReal').textContent=money(s.real); $('cTransfer').textContent='− '+money(s.transfer); $('cBB').textContent='− '+money(s.bb); $('cOutside').textContent=money(s.outside); $('cExpected').textContent=money(expected);
+  const physical=$('physicalCash').value===''?null:Math.max(0,Number($('physicalCash').value)||0);
+  const box=$('varianceBox');
+  if(physical===null){$('cVariance').textContent='—';$('varianceDesc').textContent='Isi uang fisik untuk melihat selisih.';box.classList.remove('bad');}
+  else{
+    const variance=physical-expected;
+    $('cVariance').textContent=(variance>0?'+ ':variance<0?'− ':'')+money(Math.abs(variance));
+    $('varianceDesc').textContent=variance===0?'Cocok! Uang fisik sesuai dengan hitungan closing.':variance<0?'Kas kurang '+money(Math.abs(variance))+'. Periksa transaksi dan uang di laci.':'Kas lebih '+money(variance)+'. Periksa kembali hitungan.';
+    box.classList.toggle('bad',variance!==0);
+  }
+  const invalid=list.filter(t=>Number(t.gross)<Number(t.voucher)||Number(t.cash)+Number(t.transfer)>realOf(t));
+  const vals=$('validationBox');
+  if(!list.length){vals.textContent='Belum ada transaksi untuk tanggal ini.';vals.style.background='var(--orange)';}
+  else if(invalid.length){vals.textContent=`Ada ${invalid.length} transaksi yang perlu diperiksa: VCR/return melebihi belanja atau pembayaran melebihi total real.`;vals.style.background='var(--red)';}
+  else{vals.textContent=`Semua ${s.count} transaksi lolos pemeriksaan dasar. Total pembayaran ${money(s.paid)} + BB ${money(s.bb)} = total real ${money(s.real)}.`;vals.style.background='var(--mint)';}
+}
+function render(){
+  const list=dateTransactions(), s=totals(list);
+  $('sReal').textContent=money(s.real);$('sCash').textContent=money(s.real-s.transfer-s.bb);$('sTransfer').textContent=money(s.transfer);$('sBB').textContent=money(s.bb);
+  $('sCount').textContent=`${s.count} transaksi`;$('sVoucher').textContent=money(s.voucher);$('sOutside').textContent=money(s.outside);$('sPaid').textContent=money(s.paid);
+  const d=new Date(currentDate()+'T12:00:00');
+  $('dashDateText').textContent=d.toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  renderTransactions();renderRecap();renderClosing();
+}
+function openForm(t=null){
+  editingId=t?t.id:null;
+  $('modalTitle').textContent=t?'Edit transaksi':'Tambah transaksi';
+  $('txId').value=t?.id||'';$('sender').value=t?.sender||'';$('company').value=t?.company||'';
+  $('gross').value=t?.gross??'';$('voucher').value=t?.voucher??0;$('cash').value=t?.cash??0;$('transfer').value=t?.transfer??0;$('note').value=t?.note||'';
+  $('formError').classList.add('hidden');updatePreview();$('txModal').classList.add('show');document.body.style.overflow='hidden';setTimeout(()=>$('company').focus(),150);
+}
+function closeForm(){$('txModal').classList.remove('show');document.body.style.overflow='';}
+function updatePreview(){
+  const gross=num('gross'),voucher=num('voucher'),cash=num('cash'),transfer=num('transfer');
+  const real=Math.max(0,gross-voucher),bb=Math.max(0,real-cash-transfer);
+  $('previewReal').textContent=money(real);$('previewBB').textContent=money(bb);
+  const err=$('formError');
+  if(voucher>gross&&gross>0){err.textContent='VCR/return lebih besar daripada total belanja. Periksa nominalnya.';err.classList.remove('hidden');}
+  else if(cash+transfer>real){err.textContent='Cash + transfer melebihi total real. Periksa pembayaran.';err.classList.remove('hidden');}
+  else err.classList.add('hidden');
+}
+function submitForm(e){
+  e.preventDefault();
+  const gross=num('gross'),voucher=num('voucher'),cash=num('cash'),transfer=num('transfer'),company=$('company').value.trim();
+  const real=Math.max(0,gross-voucher);
+  if(!company){notify('Nama perusahaan/warung wajib diisi.');return;}
+  if(voucher>gross){notify('VCR/return tidak boleh melebihi total belanja.');return;}
+  if(cash+transfer>real){notify('Cash + transfer tidak boleh melebihi total real.');return;}
+  const t={id:editingId||`${Date.now()}-${Math.random().toString(36).slice(2,8)}`,date:currentDate(),sender:$('sender').value.trim(),company,gross,voucher,cash,transfer,note:$('note').value.trim(),createdAt:editingId?(transactions.find(x=>x.id===editingId)?.createdAt||Date.now()):Date.now(),updatedAt:Date.now()};
+  if(editingId){const i=transactions.findIndex(x=>x.id===editingId);if(i>=0)transactions[i]=t;}
+  else transactions.push(t);
+  save();render();closeForm();notify(editingId?'Transaksi berhasil diperbarui.':'Transaksi berhasil disimpan.');
+}
+function deleteTx(id){
+  const t=transactions.find(x=>x.id===id);if(!t)return;
+  if(confirm(`Hapus transaksi ${t.company} senilai ${money(realOf(t))}?\nTindakan ini tidak bisa dibatalkan kecuali lu punya backup.`)){
+    transactions=transactions.filter(x=>x.id!==id);save();render();notify('Transaksi dihapus.');
+  }
+}
+function downloadBlob(blob,name){const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500);}
+function exportBackup(){
+  const payload={app:'Ceshamate',version:1,exportedAt:new Date().toISOString(),transactions,physicalCash:{[currentDate()]:$('physicalCash').value||''}};
+  downloadBlob(new Blob([JSON.stringify(payload,null,2)],{type:'application/json'}),`ceshamate-backup-${currentDate()}.json`);
+  notify('Backup data diunduh.');
+}
+function importBackup(file){
+  const reader=new FileReader();
+  reader.onload=()=>{
+    try{
+      const data=JSON.parse(reader.result);
+      const arr=Array.isArray(data)?data:data.transactions;
+      if(!Array.isArray(arr))throw new Error('Format backup tidak dikenali.');
+      if(!confirm(`Pulihkan ${arr.length} transaksi dari backup?\nData saat ini akan digabung; transaksi dengan ID sama akan diperbarui.`))return;
+      const map=new Map(transactions.map(t=>[t.id,t]));
+      arr.forEach(t=>{if(t&&t.id&&t.date&&t.company!=null)map.set(String(t.id),{...t,id:String(t.id),gross:Number(t.gross)||0,voucher:Number(t.voucher)||0,cash:Number(t.cash)||0,transfer:Number(t.transfer)||0});});
+      transactions=Array.from(map.values());save();render();notify('Backup berhasil dipulihkan.');
+    }catch(e){alert('Gagal membaca backup. Pastikan file JSON berasal dari Ceshamate.');}
+    $('importFile').value='';
+  };reader.readAsText(file);
+}
+function buildExportHtml(){
+  const list=dateTransactions(),s=totals(list),dateText=new Date(currentDate()+'T12:00:00').toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  const expected=s.real-s.transfer-s.bb,physical=$('physicalCash').value===''?null:Number($('physicalCash').value),variance=physical===null?null:physical-expected;
+  const rows=list.map((t,i)=>`<tr><td>${i+1}</td><td>${escapeHtml(t.sender||'—')}</td><td>${escapeHtml(t.company)}</td><td>${money(t.gross)}</td><td>${money(t.voucher)}</td><td>${money(realOf(t))}</td><td>${money(t.cash)}</td><td>${money(t.transfer)}</td><td>${money(bbOf(t))}</td></tr>`).join('');
+  const recap=list.filter(t=>outsideOf(t)>0).map((t,i)=>`<tr><td>${i+1}</td><td>${escapeHtml(t.company)}</td><td>${money(t.transfer)}</td><td>${money(bbOf(t))}</td><td><b>${money(outsideOf(t))}</b></td></tr>`).join('');
+  return `<div style="font-family:Arial,sans-serif;color:#172b25"><h1 style="margin:0">TOKO CESHA — LAPORAN CLOSING</h1><p style="color:#63736a">${dateText}</p>
+  <div class="card"><h2>Ringkasan</h2><table><tr><td>Total belanja</td><td>${money(s.gross)}</td></tr><tr><td>Total VCR/return</td><td>${money(s.voucher)}</td></tr><tr><td><b>Total real</b></td><td><b>${money(s.real)}</b></td></tr><tr><td>Total cash terinput</td><td>${money(s.cash)}</td></tr><tr><td>Total transfer</td><td>${money(s.transfer)}</td></tr><tr><td>Total BB</td><td>${money(s.bb)}</td></tr><tr><td>Total uang di luar cash</td><td>${money(s.outside)}</td></tr><tr><td><b>Cash seharusnya</b></td><td><b>${money(expected)}</b></td></tr>${physical===null?'':`<tr><td>Uang fisik di laci</td><td>${money(physical)}</td></tr><tr><td><b>Selisih kas</b></td><td><b>${variance===0?'Cocok':variance<0?'Kurang '+money(-variance):'Lebih '+money(variance)}</b></td></tr>`}</table></div>
+  <h2>Daftar transaksi</h2><table><thead><tr><th>No.</th><th>Pengirim</th><th>Perusahaan/Warung</th><th>Belanja</th><th>VCR/Return</th><th>Total real</th><th>Cash</th><th>Transfer</th><th>BB</th></tr></thead><tbody>${rows||'<tr><td colspan="9">Belum ada transaksi</td></tr>'}</tbody></table>
+  <h2>Rekap uang di luar cash — per transaksi</h2><table><thead><tr><th>No.</th><th>Perusahaan/Warung</th><th>Transfer</th><th>BB</th><th>Total luar cash</th></tr></thead><tbody>${recap||'<tr><td colspan="5">Tidak ada uang di luar cash</td></tr>'}</tbody></table>
+  <p style="font-size:11px;color:#63736a;margin-top:20px">Rumus: Total real = total belanja − VCR/return. BB = total real − cash − transfer. Uang di luar cash = transfer + BB. Cash seharusnya = total real − transfer − BB.</p></div>`;
+}
+function exportPDF(){
+  $('printReport').innerHTML=buildExportHtml();$('printReport').classList.remove('hidden');
+  setTimeout(()=>{window.print();setTimeout(()=>$('printReport').classList.add('hidden'),800);},100);
+}
+function exportImage(){
+  const list=dateTransactions(),s=totals(list),dateText=new Date(currentDate()+'T12:00:00').toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'});
+  const rows=list.filter(t=>outsideOf(t)>0);
+  const width=1000,pad=48,rowH=80,headH=260,footerH=155,height=headH+Math.max(rows.length,1)*rowH+footerH;
+  const canvas=document.createElement('canvas');canvas.width=width;canvas.height=height;
+  const ctx=canvas.getContext('2d');ctx.fillStyle='#f5f8f5';ctx.fillRect(0,0,width,height);
+  ctx.fillStyle='#16483b';roundRect(ctx,0,0,width,170,0);ctx.fill();
+  ctx.fillStyle='#fff';ctx.font='bold 38px Arial';ctx.fillText('TOKO CESHA',pad,62);ctx.font='bold 25px Arial';ctx.fillText('Rekap Uang di Luar Cash',pad,105);ctx.font='18px Arial';ctx.fillStyle='#c7e1d3';ctx.fillText(dateText,pad,140);
+  ctx.fillStyle='#fff';roundRect(ctx,pad,190,width-pad*2,115,20);ctx.fill();
+  ctx.fillStyle='#65776d';ctx.font='bold 16px Arial';ctx.fillText('TOTAL TRANSFER',pad+24,225);ctx.fillText('TOTAL BB',pad+330,225);ctx.fillText('TOTAL LUAR CASH',pad+620,225);
+  ctx.fillStyle='#16483b';ctx.font='bold 25px Arial';ctx.fillText(money(s.transfer),pad+24,268);ctx.fillText(money(s.bb),pad+330,268);ctx.fillText(money(s.outside),pad+620,268);
+  let y=headH;
+  ctx.fillStyle='#16483b';roundRect(ctx,pad,y,width-pad*2,46,10);ctx.fill();ctx.fillStyle='#fff';ctx.font='bold 16px Arial';ctx.fillText('TRANSAKSI',pad+18,y+29);ctx.fillText('TRANSFER',pad+505,y+29);ctx.fillText('BB',pad+700,y+29);ctx.fillText('TOTAL',pad+810,y+29);y+=46;
+  if(!rows.length){ctx.fillStyle='#fff';ctx.fillRect(pad,y,width-pad*2,rowH);ctx.fillStyle='#65776d';ctx.font='18px Arial';ctx.fillText('Tidak ada uang di luar cash.',pad+18,y+44);y+=rowH;}
+  rows.forEach((t,i)=>{
+    ctx.fillStyle=i%2?'#fff':'#edf5ef';ctx.fillRect(pad,y,width-pad*2,rowH);
+    ctx.fillStyle='#172b25';ctx.font='bold 17px Arial';ctx.fillText(`${i+1}. ${String(t.company).slice(0,27)}`,pad+18,y+29);
+    ctx.fillStyle='#65776d';ctx.font='14px Arial';ctx.fillText(`Transfer ${money(t.transfer)}  +  BB ${money(bbOf(t))}`,pad+18,y+55);
+    ctx.fillStyle='#172b25';ctx.font='bold 16px Arial';ctx.fillText(money(t.transfer),pad+505,y+42);ctx.fillText(money(bbOf(t)),pad+700,y+42);ctx.fillText(money(outsideOf(t)),pad+810,y+42);y+=rowH;
+  });
+  y+=20;ctx.fillStyle='#16483b';roundRect(ctx,pad,y,width-pad*2,85,16);ctx.fill();ctx.fillStyle='#d8eee0';ctx.font='bold 16px Arial';ctx.fillText('CASH SEHARUSNYA DI LACI',pad+22,y+30);ctx.fillStyle='#fff';ctx.font='bold 30px Arial';ctx.fillText(money(s.real-s.transfer-s.bb),pad+22,y+66);
+  canvas.toBlob(blob=>{if(blob){downloadBlob(blob,`ceshamate-rekap-luar-cash-${currentDate()}.png`);notify('Gambar rekap berhasil dibuat.');}else notify('Gagal membuat gambar. Coba ekspor PDF.');},'image/png');
+}
+function roundRect(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();}
+function exportRecap(){exportImage();}
+function init(){
+  load();render();
+  document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>switchPage(b.dataset.page)));
+  $('addTx').addEventListener('click',()=>openForm());$('addFromDash').addEventListener('click',()=>openForm());
+  $('goTransactions').addEventListener('click',()=>switchPage('transactions'));
+  $('closeModal').addEventListener('click',closeForm);$('cancelTx').addEventListener('click',closeForm);
+  $('txModal').addEventListener('click',e=>{if(e.target===$('txModal'))closeForm();});
+  $('txForm').addEventListener('submit',submitForm);
+  ['gross','voucher','cash','transfer'].forEach(id=>$(id).addEventListener('input',updatePreview));
+  $('searchTx').addEventListener('input',renderTransactions);$('filterTx').addEventListener('change',renderTransactions);
+  $('txList').addEventListener('click',e=>{const edit=e.target.closest('[data-edit]'),del=e.target.closest('[data-delete]');if(edit){const t=transactions.find(t=>t.id===edit.dataset.edit);if(t)openForm(t);}if(del)deleteTx(del.dataset.delete);});
+  $('reportDate').addEventListener('change',()=>{localStorage.setItem(DATE_KEY,currentDate());$('physicalCash').value=localStorage.getItem(PHYSICAL_KEY+'_'+currentDate())||'';render();});
+  $('physicalCash').addEventListener('input',()=>{save();renderClosing();});
+  $('exportReport').addEventListener('click',exportPDF);$('exportRecap').addEventListener('click',exportRecap);
+  $('backupBtn').addEventListener('click',()=>{if(confirm('Buat backup data sekarang?'))exportBackup();});
+  $('backupBtn').addEventListener('contextmenu',e=>{e.preventDefault();$('importFile').click();});
+  $('helpBtn').addEventListener('click',()=>$('helpModal').classList.add('show'));
+  $('closeHelp').addEventListener('click',()=>$('helpModal').classList.remove('show'));
+  $('closeHelpBottom').addEventListener('click',()=>$('helpModal').classList.remove('show'));
+  $('importFile').addEventListener('change',e=>{if(e.target.files[0])importBackup(e.target.files[0]);});
+  // Backup/restore are also available from the help dialog via the backup button's long-press hint.
+  $('backupBtn').title='Klik: backup. Untuk pulihkan backup, gunakan menu browser/fitur import di petunjuk.';
+  // Enable import using keyboard shortcut Ctrl+Shift+I on desktop; mobile users can use the button in help section.
+  document.addEventListener('keydown',e=>{if(e.ctrlKey&&e.shiftKey&&e.key.toLowerCase()==='i'){$('importFile').click();}});
+  // Add a visible restore action to the help dialog.
+  const restore=document.createElement('button');restore.className='btn soft full';restore.style.marginTop='10px';restore.textContent='⇧ Pulihkan backup JSON';restore.addEventListener('click',()=>$('importFile').click());$('closeHelpBottom').before(restore);
+}
+init();
+})();
+</script>
+</body>
+</html>
