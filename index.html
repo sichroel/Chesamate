@@ -58,9 +58,9 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}button:focus-vis
         <div class="section-head"><div><h2>Aktivitas hari ini</h2><p id="dashDateText">Ringkasan transaksi</p></div><button class="btn primary" id="addFromDash">＋ Transaksi</button></div>
         <div class="summaryline"><span>Jumlah transaksi</span><b id="sCount">0 transaksi</b></div>
         <div class="summaryline"><span>Total voucher/return</span><b id="sVoucher">Rp0</b></div>
-        <div class="summaryline"><span>Total uang di luar cash</span><b id="sOutside">Rp0</b></div>
+        <div class="summaryline"><span>Transfer + BB (sisa tagihan)</span><b id="sOutside">Rp0</b></div>
         <div class="summaryline"><span>Total pembayaran tercatat</span><b id="sPaid">Rp0</b></div>
-        <div class="footnote">Total uang di luar cash = transfer + belum bayar. Cash seharusnya = total real − transfer − belum bayar.</div>
+        <div class="footnote">Rekap luar cash = transfer + BB (sisa tagihan, bukan uang yang sudah diterima). Cash seharusnya = total real − transfer − BB.</div>
       </div>
       <div class="card">
         <div class="section-head"><div><h2>Transaksi terbaru</h2><p>Transaksi pada tanggal terpilih</p></div><button class="btn soft small" id="goTransactions">Lihat semua</button></div>
@@ -84,7 +84,7 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}button:focus-vis
         <div class="card stat" style="box-shadow:none"><div class="eyebrow">Total transfer</div><div class="value" id="rTransfer">Rp0</div></div>
         <div class="card stat" style="box-shadow:none"><div class="eyebrow">Total BB</div><div class="value" id="rBB">Rp0</div></div>
       </div>
-      <div class="summaryline"><span>Total uang di luar cash</span><b id="rOutside">Rp0</b></div>
+      <div class="summaryline"><span>Transfer + BB (sisa tagihan)</span><b id="rOutside">Rp0</b></div>
       <div id="recapList" class="recap-list" style="margin-top:12px"></div>
       <div class="footnote">Transaksi yang seluruhnya cash tetap tercatat di daftar transaksi, tetapi tidak perlu muncul di rekap ini karena tidak ada uang di luar cash.</div>
     </div>
@@ -131,7 +131,7 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}button:focus-vis
         <div class="field"><label for="cash">Uang cash (Rp)</label><input id="cash" type="number" min="0" step="1" inputmode="numeric" value="0" placeholder="0"></div>
         <div class="field"><label for="transfer">Uang transfer (Rp)</label><input id="transfer" type="number" min="0" step="1" inputmode="numeric" value="0" placeholder="0"></div>
         <div class="field full"><label for="note">Keterangan (opsional)</label><textarea id="note" maxlength="500" placeholder="Contoh: pembayaran sebagian / catatan return"></textarea></div>
-        <div class="field full"><div class="hint">Total real dihitung dari total belanja dikurangi VCR/return. BB dihitung otomatis dari total real dikurangi cash dan transfer.</div><div id="formError" class="callout hidden"></div></div>
+        <div class="field full"><div id="editNotice" class="callout hidden"></div><div class="hint">Total real dihitung dari total belanja dikurangi VCR/return. BB dihitung otomatis dari total real dikurangi cash dan transfer.</div><div id="formError" class="callout hidden"></div></div>
       </div>
       <div class="toolbar" style="margin-top:17px"><button type="button" class="btn ghost" id="cancelTx" style="flex:1">Batal</button><button type="submit" class="btn primary" style="flex:2">Simpan transaksi</button></div>
     </form>
@@ -142,8 +142,9 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}button:focus-vis
  <div class="modal"><div class="modal-head"><h2 id="helpTitle">Cara pakai Ceshamate</h2><button class="close" id="closeHelp">×</button></div>
  <div style="line-height:1.7">
  <p><b>1. Tambah transaksi.</b> Masukkan total belanja, VCR/return, cash dan transfer. Total real serta BB dihitung otomatis.</p>
- <p><b>2. Rekap luar cash.</b> Setiap transaksi ditampilkan sendiri. Nilai rekap = transfer + BB.</p>
+ <p><b>2. Rekap luar cash.</b> Setiap transaksi ditampilkan sendiri. Nilai rekap = transfer + BB (BB bukan uang yang sudah diterima).</p>
  <p><b>3. Closing.</b> Cash seharusnya = total real − total transfer − total BB. Masukkan uang fisik untuk melihat selisih.</p>
+ <p><b>4. Edit dan pelunasan BB.</b> Edit transaksi lama untuk memperbarui nominal cash/transfer. Tanggal penjualan tetap tanggal awal. Perhatian: mengubah pembayaran pada transaksi lama akan memperbarui angka laporan pada tanggal penjualan tersebut; untuk mengecek kas harian, cocokkan dengan catatan uang fisik yang benar-benar diterima.</p>
  <p><b>4. Backup.</b> Gunakan tombol ⇧ di bagian atas untuk mengunduh file backup JSON. Simpan file tersebut di tempat aman. Jika ganti HP, buka web lalu pulihkan backup.</p>
  <p><b>Catatan penyimpanan.</b> Data tersimpan di browser/perangkat yang digunakan, bukan di server. Membuka web di HP lain tidak otomatis membawa data dari HP ini.</p>
  <p><b>Ekspor.</b> Tombol ekspor closing membuka halaman cetak yang bisa disimpan sebagai PDF. Ekspor gambar tersedia dari menu rekap.</p>
@@ -164,6 +165,7 @@ const DATE_KEY = 'ceshamate_date_v1';
 let transactions = [];
 let editingId = null;
 let toastTimer;
+let storageHealthy = true;
 
 const today = () => {
   const d = new Date();
@@ -171,27 +173,52 @@ const today = () => {
 };
 const currentDate = () => $('reportDate').value || today();
 const money = n => new Intl.NumberFormat('id-ID',{style:'currency',currency:'IDR',maximumFractionDigits:0}).format(Number(n)||0);
-const num = id => Math.max(0, Math.round(Number($(id).value)||0));
+const num = id => { const raw=$(id).value.trim(); return raw===''?0:Number(raw); };
+const validMoney = n => Number.isFinite(n) && Number.isInteger(n) && n >= 0;
+const validDate = d => { if(typeof d!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(d))return false; const x=new Date(d+'T12:00:00'); return !Number.isNaN(x.getTime())&&x.toISOString().slice(0,10)===d; };
+const validTransaction = t => !!(t && typeof t==='object' && t.id!=null && String(t.id).trim() && validDate(t.date) && typeof t.company==='string' && t.company.trim() && ['gross','voucher','cash','transfer'].every(k=>validMoney(Number(t[k]))) && Number(t.voucher)<=Number(t.gross) && Number(t.cash)+Number(t.transfer)<=Number(t.gross)-Number(t.voucher));
 const escapeHtml = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const realOf = t => Math.max(0, Number(t.gross||0)-Number(t.voucher||0));
-const bbOf = t => Math.max(0, realOf(t)-Number(t.cash||0)-Number(t.transfer||0));
-const paidOf = t => Number(t.cash||0)+Number(t.transfer||0);
+const amountOf = value => Number.isFinite(Number(value)) ? Number(value) : 0;
+const realOf = t => Math.max(0, amountOf(t.gross)-amountOf(t.voucher));
+const bbOf = t => Math.max(0, realOf(t)-amountOf(t.cash)-amountOf(t.transfer));
+const paidOf = t => amountOf(t.cash)+amountOf(t.transfer);
 const outsideOf = t => Number(t.transfer||0)+bbOf(t);
 const dateTransactions = () => transactions.filter(t => t.date === currentDate()).sort((a,b) => (a.createdAt||0)-(b.createdAt||0));
 const totals = list => list.reduce((a,t) => {
-  a.gross += Number(t.gross||0); a.voucher += Number(t.voucher||0); a.real += realOf(t);
-  a.cash += Number(t.cash||0); a.transfer += Number(t.transfer||0); a.bb += bbOf(t); a.paid += paidOf(t);
+  a.gross += amountOf(t.gross); a.voucher += amountOf(t.voucher); a.real += realOf(t);
+  a.cash += amountOf(t.cash); a.transfer += amountOf(t.transfer); a.bb += bbOf(t); a.paid += paidOf(t);
   a.outside += outsideOf(t); a.count++; return a;
 },{gross:0,voucher:0,real:0,cash:0,transfer:0,bb:0,paid:0,outside:0,count:0});
 function load(){
-  try { const x=JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]'); transactions=Array.isArray(x)?x.filter(t=>t&&t.id&&t.date):[]; }
-  catch(e){transactions=[];}
-  $('reportDate').value=localStorage.getItem(DATE_KEY)||today();
-  $('physicalCash').value=localStorage.getItem(PHYSICAL_KEY+'_'+currentDate())||'';
+  try {
+    const raw=localStorage.getItem(STORAGE_KEY);
+    const x=JSON.parse(raw||'[]');
+    if(!Array.isArray(x)) throw new Error('Data transaksi bukan daftar.');
+    transactions=x.filter(t=>t&&t.id&&t.date);
+  } catch(e) {
+    transactions=[]; storageHealthy=false;
+    setTimeout(()=>notify('Data lokal tidak bisa dibaca. Penyimpanan dinonaktifkan agar data lama tidak tertimpa.'),250);
+  }
+  try { $('reportDate').value=localStorage.getItem(DATE_KEY)||today(); }
+  catch(e) { $('reportDate').value=today(); storageHealthy=false; }
+  try { $('physicalCash').value=localStorage.getItem(PHYSICAL_KEY+'_'+currentDate())||''; }
+  catch(e) { $('physicalCash').value=''; storageHealthy=false; }
 }
 function save(){
-  try { localStorage.setItem(STORAGE_KEY,JSON.stringify(transactions)); localStorage.setItem(DATE_KEY,currentDate()); localStorage.setItem(PHYSICAL_KEY+'_'+currentDate(),$('physicalCash').value||''); }
-  catch(e){notify('Penyimpanan penuh. Ekspor backup lalu hapus data lama jika perlu.');}
+  if(!storageHealthy){notify('Belum disimpan: data lokal bermasalah. Jangan hapus data browser sebelum data dipulihkan.');return false;}
+  const keys=[STORAGE_KEY,DATE_KEY,PHYSICAL_KEY+'_'+currentDate()];
+  const before={};
+  try {
+    keys.forEach(k=>before[k]=localStorage.getItem(k));
+    localStorage.setItem(STORAGE_KEY,JSON.stringify(transactions));
+    localStorage.setItem(DATE_KEY,currentDate());
+    localStorage.setItem(PHYSICAL_KEY+'_'+currentDate(),$('physicalCash').value||'');
+    return true;
+  } catch(e) {
+    try { keys.forEach(k=>before[k]===null?localStorage.removeItem(k):localStorage.setItem(k,before[k])); } catch(rollbackError) {}
+    notify('Gagal menyimpan ke perangkat. Periksa ruang penyimpanan dan buat backup sebelum mencoba lagi.');
+    return false;
+  }
 }
 function notify(message){
   const el=$('toast'); el.textContent=message; el.classList.add('show'); clearTimeout(toastTimer); toastTimer=setTimeout(()=>el.classList.remove('show'),2600);
@@ -231,19 +258,21 @@ function renderRecap(){
 function renderClosing(){
   const list=dateTransactions(), s=totals(list), expected=s.real-s.transfer-s.bb;
   $('cReal').textContent=money(s.real); $('cTransfer').textContent='− '+money(s.transfer); $('cBB').textContent='− '+money(s.bb); $('cOutside').textContent=money(s.outside); $('cExpected').textContent=money(expected);
-  const physical=$('physicalCash').value===''?null:Math.max(0,Number($('physicalCash').value)||0);
+  const physicalRaw=$('physicalCash').value;
+  const physical=physicalRaw===''?null:Number(physicalRaw);
   const box=$('varianceBox');
-  if(physical===null){$('cVariance').textContent='—';$('varianceDesc').textContent='Isi uang fisik untuk melihat selisih.';box.classList.remove('bad');}
+  if(physical!==null&&!validMoney(physical)){$('cVariance').textContent='—';$('varianceDesc').textContent='Nominal uang fisik harus berupa angka bulat nol atau lebih.';box.classList.add('bad');}
+  else if(physical===null){$('cVariance').textContent='—';$('varianceDesc').textContent='Isi uang fisik untuk melihat selisih.';box.classList.remove('bad');}
   else{
     const variance=physical-expected;
     $('cVariance').textContent=(variance>0?'+ ':variance<0?'− ':'')+money(Math.abs(variance));
     $('varianceDesc').textContent=variance===0?'Cocok! Uang fisik sesuai dengan hitungan closing.':variance<0?'Kas kurang '+money(Math.abs(variance))+'. Periksa transaksi dan uang di laci.':'Kas lebih '+money(variance)+'. Periksa kembali hitungan.';
     box.classList.toggle('bad',variance!==0);
   }
-  const invalid=list.filter(t=>Number(t.gross)<Number(t.voucher)||Number(t.cash)+Number(t.transfer)>realOf(t));
+  const invalid=list.filter(t=>!validTransaction(t));
   const vals=$('validationBox');
   if(!list.length){vals.textContent='Belum ada transaksi untuk tanggal ini.';vals.style.background='var(--orange)';}
-  else if(invalid.length){vals.textContent=`Ada ${invalid.length} transaksi yang perlu diperiksa: VCR/return melebihi belanja atau pembayaran melebihi total real.`;vals.style.background='var(--red)';}
+  else if(invalid.length){vals.textContent=`Ada ${invalid.length} transaksi yang perlu diperiksa: tanggal/nama/nominal tidak valid, VCR/return melebihi belanja, atau pembayaran melebihi total real. Periksa sebelum mengandalkan angka closing.`;vals.style.background='var(--red)';}
   else{vals.textContent=`Semua ${s.count} transaksi lolos pemeriksaan dasar. Total pembayaran ${money(s.paid)} + BB ${money(s.bb)} = total real ${money(s.real)}.`;vals.style.background='var(--mint)';}
 }
 function render(){
@@ -259,7 +288,10 @@ function openForm(t=null){
   $('modalTitle').textContent=t?'Edit transaksi':'Tambah transaksi';
   $('txId').value=t?.id||'';$('sender').value=t?.sender||'';$('company').value=t?.company||'';
   $('gross').value=t?.gross??'';$('voucher').value=t?.voucher??0;$('cash').value=t?.cash??0;$('transfer').value=t?.transfer??0;$('note').value=t?.note||'';
-  $('formError').classList.add('hidden');updatePreview();$('txModal').classList.add('show');document.body.style.overflow='hidden';setTimeout(()=>$('company').focus(),150);
+  $('formError').classList.add('hidden');
+  const notice=$('editNotice');
+  if(t){notice.textContent=`Transaksi ini tetap tercatat pada tanggal ${t.date}. Mengubah cash/transfer/BB akan memperbarui laporan tanggal penjualan tersebut.`;notice.classList.remove('hidden');}else{notice.classList.add('hidden');notice.textContent='';}
+  updatePreview();$('txModal').classList.add('show');document.body.style.overflow='hidden';setTimeout(()=>$('company').focus(),150);
 }
 function closeForm(){$('txModal').classList.remove('show');document.body.style.overflow='';}
 function updatePreview(){
@@ -267,7 +299,8 @@ function updatePreview(){
   const real=Math.max(0,gross-voucher),bb=Math.max(0,real-cash-transfer);
   $('previewReal').textContent=money(real);$('previewBB').textContent=money(bb);
   const err=$('formError');
-  if(voucher>gross&&gross>0){err.textContent='VCR/return lebih besar daripada total belanja. Periksa nominalnya.';err.classList.remove('hidden');}
+  if(![gross,voucher,cash,transfer].every(validMoney)){err.textContent='Semua nominal harus berupa angka bulat nol atau lebih. Jangan gunakan desimal atau angka negatif.';err.classList.remove('hidden');}
+  else if(voucher>gross){err.textContent='VCR/return lebih besar daripada total belanja. Periksa nominalnya.';err.classList.remove('hidden');}
   else if(cash+transfer>real){err.textContent='Cash + transfer melebihi total real. Periksa pembayaran.';err.classList.remove('hidden');}
   else err.classList.add('hidden');
 }
@@ -276,24 +309,36 @@ function submitForm(e){
   const gross=num('gross'),voucher=num('voucher'),cash=num('cash'),transfer=num('transfer'),company=$('company').value.trim();
   const real=Math.max(0,gross-voucher);
   if(!company){notify('Nama perusahaan/warung wajib diisi.');return;}
+  if(![gross,voucher,cash,transfer].every(validMoney)){notify('Semua nominal harus berupa angka bulat nol atau lebih.');return;}
   if(voucher>gross){notify('VCR/return tidak boleh melebihi total belanja.');return;}
   if(cash+transfer>real){notify('Cash + transfer tidak boleh melebihi total real.');return;}
-  const t={id:editingId||`${Date.now()}-${Math.random().toString(36).slice(2,8)}`,date:currentDate(),sender:$('sender').value.trim(),company,gross,voucher,cash,transfer,note:$('note').value.trim(),createdAt:editingId?(transactions.find(x=>x.id===editingId)?.createdAt||Date.now()):Date.now(),updatedAt:Date.now()};
-  if(editingId){const i=transactions.findIndex(x=>x.id===editingId);if(i>=0)transactions[i]=t;}
+  const existing=editingId?transactions.find(x=>String(x.id)===String(editingId)):null;
+  if(editingId&&!existing){notify('Transaksi tidak ditemukan. Muat ulang daftar lalu coba lagi.');return;}
+  const t={id:existing?existing.id:`${Date.now()}-${Math.random().toString(36).slice(2,8)}`,date:existing?existing.date:currentDate(),sender:$('sender').value.trim(),company,gross,voucher,cash,transfer,note:$('note').value.trim(),createdAt:existing?(existing.createdAt||Date.now()):Date.now(),updatedAt:Date.now()};
+  const previous=transactions.slice();
+  if(existing){const i=transactions.findIndex(x=>String(x.id)===String(editingId));transactions[i]=t;}
   else transactions.push(t);
-  save();render();closeForm();notify(editingId?'Transaksi berhasil diperbarui.':'Transaksi berhasil disimpan.');
+  if(!save()){transactions=previous;render();return;}
+  render();closeForm();notify(existing?'Transaksi berhasil diperbarui.':'Transaksi berhasil disimpan.');
 }
 function deleteTx(id){
   const t=transactions.find(x=>x.id===id);if(!t)return;
   if(confirm(`Hapus transaksi ${t.company} senilai ${money(realOf(t))}?\nTindakan ini tidak bisa dibatalkan kecuali lu punya backup.`)){
-    transactions=transactions.filter(x=>x.id!==id);save();render();notify('Transaksi dihapus.');
+    const previous=transactions.slice();transactions=transactions.filter(x=>String(x.id)!==String(id));
+    if(!save()){transactions=previous;render();return;}
+    render();notify('Transaksi dihapus.');
   }
 }
 function downloadBlob(blob,name){const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500);}
 function exportBackup(){
-  const payload={app:'Ceshamate',version:1,exportedAt:new Date().toISOString(),transactions,physicalCash:{[currentDate()]:$('physicalCash').value||''}};
+  if(!storageHealthy){notify('Backup dibatalkan: data lokal tidak terbaca, jadi file kosong bisa menyesatkan. Pulihkan dari backup yang valid terlebih dahulu.');return;}
+  const physicalCash={};
+  try { for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k&&k.startsWith(PHYSICAL_KEY+'_'))physicalCash[k.slice((PHYSICAL_KEY+'_').length)]=localStorage.getItem(k)||'';} }
+  catch(e) { notify('Tidak bisa membaca seluruh data closing.');return; }
+  physicalCash[currentDate()]=$('physicalCash').value||'';
+  const payload={app:'Ceshamate',version:2,exportedAt:new Date().toISOString(),transactions,physicalCash};
   downloadBlob(new Blob([JSON.stringify(payload,null,2)],{type:'application/json'}),`ceshamate-backup-${currentDate()}.json`);
-  notify('Backup data diunduh.');
+  notify('Backup transaksi dan seluruh tanggal closing diunduh.');
 }
 function importBackup(file){
   const reader=new FileReader();
@@ -302,13 +347,33 @@ function importBackup(file){
       const data=JSON.parse(reader.result);
       const arr=Array.isArray(data)?data:data.transactions;
       if(!Array.isArray(arr))throw new Error('Format backup tidak dikenali.');
-      if(!confirm(`Pulihkan ${arr.length} transaksi dari backup?\nData saat ini akan digabung; transaksi dengan ID sama akan diperbarui.`))return;
-      const map=new Map(transactions.map(t=>[t.id,t]));
-      arr.forEach(t=>{if(t&&t.id&&t.date&&t.company!=null)map.set(String(t.id),{...t,id:String(t.id),gross:Number(t.gross)||0,voucher:Number(t.voucher)||0,cash:Number(t.cash)||0,transfer:Number(t.transfer)||0});});
-      transactions=Array.from(map.values());save();render();notify('Backup berhasil dipulihkan.');
-    }catch(e){alert('Gagal membaca backup. Pastikan file JSON berasal dari Ceshamate.');}
+      if(arr.length>100000)throw new Error('Jumlah transaksi terlalu besar untuk dipulihkan.');
+      const normalized=arr.map((t,i)=>{
+        if(!validTransaction(t))throw new Error(`Transaksi nomor ${i+1} tidak valid. Periksa tanggal, nama perusahaan, dan nominal.`);
+        return {...t,id:String(t.id),sender:String(t.sender||''),company:String(t.company).trim(),note:String(t.note||''),gross:Number(t.gross),voucher:Number(t.voucher),cash:Number(t.cash),transfer:Number(t.transfer),createdAt:Number(t.createdAt)||Date.now(),updatedAt:Number(t.updatedAt)||Date.now()};
+      });
+      const cashData=(!Array.isArray(data)&&data&&data.physicalCash&&typeof data.physicalCash==='object')?data.physicalCash:{};
+      for(const [date,value] of Object.entries(cashData)){
+        if(!validDate(date)||!(value===''||value===null||validMoney(Number(value))))throw new Error(`Data closing tanggal ${date} tidak valid.`);
+      }
+      if(!confirm(`Periksa backup: ${normalized.length} transaksi. Data akan digabung dengan data lokal. ID yang sudah ada di perangkat akan dipertahankan; tidak ada data lokal yang ditimpa. Lanjutkan?`))return;
+      const previous=transactions.slice(), priorStorageHealthy=storageHealthy, merged=new Map(transactions.map(t=>[String(t.id),t]));
+      let added=0,duplicates=0;
+      normalized.forEach(t=>{if(merged.has(String(t.id)))duplicates++;else{merged.set(String(t.id),t);added++;}});
+      transactions=Array.from(merged.values());
+      storageHealthy=true; // A validated, user-confirmed backup is an explicit recovery path for unreadable local data.
+      if(!save()){transactions=previous;storageHealthy=priorStorageHealthy;render();return;}
+      let cashAdded=0;
+      try {
+        for(const [date,value] of Object.entries(cashData)){
+          const key=PHYSICAL_KEY+'_'+date;
+          if(localStorage.getItem(key)===null){localStorage.setItem(key,String(value??''));cashAdded++;}
+        }
+      } catch(e) { notify('Transaksi berhasil digabung, tetapi sebagian data closing tidak dapat dipulihkan karena ruang penyimpanan.');render();return; }
+      render();notify(`Backup digabung: ${added} transaksi baru, ${duplicates} ID dilewati, ${cashAdded} tanggal closing ditambahkan.`);
+    }catch(e){alert('Backup ditolak: '+(e.message||'format JSON tidak valid')+' Data lokal tidak diubah.');}
     $('importFile').value='';
-  };reader.readAsText(file);
+  };reader.onerror=()=>{alert('File backup tidak bisa dibaca.');$('importFile').value='';};reader.readAsText(file);
 }
 function buildExportHtml(){
   const list=dateTransactions(),s=totals(list),dateText=new Date(currentDate()+'T12:00:00').toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
@@ -316,7 +381,7 @@ function buildExportHtml(){
   const rows=list.map((t,i)=>`<tr><td>${i+1}</td><td>${escapeHtml(t.sender||'—')}</td><td>${escapeHtml(t.company)}</td><td>${money(t.gross)}</td><td>${money(t.voucher)}</td><td>${money(realOf(t))}</td><td>${money(t.cash)}</td><td>${money(t.transfer)}</td><td>${money(bbOf(t))}</td></tr>`).join('');
   const recap=list.filter(t=>outsideOf(t)>0).map((t,i)=>`<tr><td>${i+1}</td><td>${escapeHtml(t.company)}</td><td>${money(t.transfer)}</td><td>${money(bbOf(t))}</td><td><b>${money(outsideOf(t))}</b></td></tr>`).join('');
   return `<div style="font-family:Arial,sans-serif;color:#172b25"><h1 style="margin:0">TOKO CESHA — LAPORAN CLOSING</h1><p style="color:#63736a">${dateText}</p>
-  <div class="card"><h2>Ringkasan</h2><table><tr><td>Total belanja</td><td>${money(s.gross)}</td></tr><tr><td>Total VCR/return</td><td>${money(s.voucher)}</td></tr><tr><td><b>Total real</b></td><td><b>${money(s.real)}</b></td></tr><tr><td>Total cash terinput</td><td>${money(s.cash)}</td></tr><tr><td>Total transfer</td><td>${money(s.transfer)}</td></tr><tr><td>Total BB</td><td>${money(s.bb)}</td></tr><tr><td>Total uang di luar cash</td><td>${money(s.outside)}</td></tr><tr><td><b>Cash seharusnya</b></td><td><b>${money(expected)}</b></td></tr>${physical===null?'':`<tr><td>Uang fisik di laci</td><td>${money(physical)}</td></tr><tr><td><b>Selisih kas</b></td><td><b>${variance===0?'Cocok':variance<0?'Kurang '+money(-variance):'Lebih '+money(variance)}</b></td></tr>`}</table></div>
+  <div class="card"><h2>Ringkasan</h2><table><tr><td>Total belanja</td><td>${money(s.gross)}</td></tr><tr><td>Total VCR/return</td><td>${money(s.voucher)}</td></tr><tr><td><b>Total real</b></td><td><b>${money(s.real)}</b></td></tr><tr><td>Total cash terinput</td><td>${money(s.cash)}</td></tr><tr><td>Total transfer</td><td>${money(s.transfer)}</td></tr><tr><td>Total BB</td><td>${money(s.bb)}</td></tr><tr><td>Transfer + BB (sisa tagihan)</td><td>${money(s.outside)}</td></tr><tr><td><b>Cash seharusnya</b></td><td><b>${money(expected)}</b></td></tr>${physical===null?'':`<tr><td>Uang fisik di laci</td><td>${money(physical)}</td></tr><tr><td><b>Selisih kas</b></td><td><b>${variance===0?'Cocok':variance<0?'Kurang '+money(-variance):'Lebih '+money(variance)}</b></td></tr>`}</table></div>
   <h2>Daftar transaksi</h2><table><thead><tr><th>No.</th><th>Pengirim</th><th>Perusahaan/Warung</th><th>Belanja</th><th>VCR/Return</th><th>Total real</th><th>Cash</th><th>Transfer</th><th>BB</th></tr></thead><tbody>${rows||'<tr><td colspan="9">Belum ada transaksi</td></tr>'}</tbody></table>
   <h2>Rekap uang di luar cash — per transaksi</h2><table><thead><tr><th>No.</th><th>Perusahaan/Warung</th><th>Transfer</th><th>BB</th><th>Total luar cash</th></tr></thead><tbody>${recap||'<tr><td colspan="5">Tidak ada uang di luar cash</td></tr>'}</tbody></table>
   <p style="font-size:11px;color:#63736a;margin-top:20px">Rumus: Total real = total belanja − VCR/return. BB = total real − cash − transfer. Uang di luar cash = transfer + BB. Cash seharusnya = total real − transfer − BB.</p></div>`;
@@ -361,8 +426,8 @@ function init(){
   ['gross','voucher','cash','transfer'].forEach(id=>$(id).addEventListener('input',updatePreview));
   $('searchTx').addEventListener('input',renderTransactions);$('filterTx').addEventListener('change',renderTransactions);
   $('txList').addEventListener('click',e=>{const edit=e.target.closest('[data-edit]'),del=e.target.closest('[data-delete]');if(edit){const t=transactions.find(t=>t.id===edit.dataset.edit);if(t)openForm(t);}if(del)deleteTx(del.dataset.delete);});
-  $('reportDate').addEventListener('change',()=>{localStorage.setItem(DATE_KEY,currentDate());$('physicalCash').value=localStorage.getItem(PHYSICAL_KEY+'_'+currentDate())||'';render();});
-  $('physicalCash').addEventListener('input',()=>{save();renderClosing();});
+  $('reportDate').addEventListener('change',()=>{try{localStorage.setItem(DATE_KEY,currentDate());$('physicalCash').value=localStorage.getItem(PHYSICAL_KEY+'_'+currentDate())||'';}catch(e){notify('Tanggal berubah, tetapi penyimpanan perangkat gagal.');$('physicalCash').value='';}render();});
+  $('physicalCash').addEventListener('input',()=>{const v=$('physicalCash').value;if(v!==''&&!validMoney(Number(v))){notify('Uang fisik harus berupa angka bulat nol atau lebih.');renderClosing();return;}save();renderClosing();});
   $('exportReport').addEventListener('click',exportPDF);$('exportRecap').addEventListener('click',exportRecap);
   $('backupBtn').addEventListener('click',()=>{if(confirm('Buat backup data sekarang?'))exportBackup();});
   $('backupBtn').addEventListener('contextmenu',e=>{e.preventDefault();$('importFile').click();});
